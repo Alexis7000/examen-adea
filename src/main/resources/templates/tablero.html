@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tablero de Usuarios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eaf5ea; /* Verde claro de fondo */
+            color: #2f4f2f; /* Verde oscuro para el texto */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #2e8b57; /* Verde tipo "Sea Green" */
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: #f9fff9; /* Fondo de la tabla en verde claro */
+            box-shadow: 0 4px 8px rgba(0, 128, 0, 0.1); /* Sombras sutiles */
+        }
+
+        table, th, td {
+            border: 1px solid #2e8b57; /* Bordes verdes */
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #3cb371; /* Verde mediano para la cabecera */
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #e0f2e0; /* Alternar color en filas */
+        }
+
+        .logout-form {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .logout-button {
+            background-color: #006400; /* Verde oscuro */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logout-button:hover {
+            background-color: #228b22; /* Verde tipo "Forest Green" */
+        }
+
+        fieldset {
+            border: 2px solid #3cb371; /* Borde del campo de estado en verde */
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        legend {
+            color: #2e8b57; /* Texto del campo de estado */
+            font-weight: bold;
+        }
+
+        button {
+            background-color: #32cd32; /* Verde lima */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #228b22; /* Verde más oscuro al pasar el ratón */
+        }
+
+        input[type="text"], input[type="date"] {
+            padding: 8px;
+            border: 1px solid #3cb371;
+            border-radius: 4px;
+            margin-right: 10px;
+            width: 200px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .activos {
+            background-color: #228b22;
+        }
+
+        .inactivos {
+            background-color: #6b8e23; /* Verde oliva oscuro */
+        }
+
+        .revocados {
+            background-color: #556b2f; /* Verde oliva más oscuro */
+        }
+    </style>
+</head>
+<body>
+<h1>Tablero de Usuarios</h1>
+<br>
+<br>
+<form th:action="@{/logout}" method="post" class="logout-form">
+    <button type="submit" class="logout-button">Cerrar Sesión</button>
+</form>
+
+<form th:action="@{/api/usuarios/buscarPorStatus}" method="get">
+    <fieldset>
+        <legend>Status</legend>
+        <button type="submit" name="status" value="A" class="activos">Activos</button>
+        <button type="submit" name="status" value="B" class="inactivos">Inactivos</button>
+        <button type="submit" name="status" value="R" class="revocados">Revocados</button>
+    </fieldset>
+</form>
+
+<form th:action="@{/api/usuarios/buscarPorNombre}" method="get">
+    <label for="nombre">Nombre:</label>
+    <input type="text" id="nombre" name="nombre" required>
+    <button type="submit">Buscar</button>
+</form>
+
+<form th:action="@{/api/usuarios/buscarPorFechaAlta}" method="get">
+    <label for="fechaAlta">Fecha Alta:</label>
+    <input type="date" id="fechaAlta" name="fechaAlta" required>
+    <button type="submit">Buscar</button>
+</form>
+
+<form th:action="@{/api/usuarios/buscarPorFechaBaja}" method="get">
+    <label for="fechaBaja">Fecha Baja:</label>
+    <input type="date" id="fechaBaja" name="fechaBaja" required>
+    <button type="submit">Buscar</button>
+</form>
+
+<!-- Lista de Usuarios -->
+<h2>Lista de Usuarios</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Login</th>
+        <th>Contraseña</th>
+        <th>Nombre</th>
+        <th>Apellido Paterno</th>
+        <th>Apellido Materno</th>
+        <th>Cliente</th>
+        <th>Email</th>
+        <th>Fecha Alta</th>
+        <th>Fecha Baja</th>
+        <th>Status</th>
+        <th>Intentos</th>
+        <th>Fecha Revocado</th>
+        <th>Fecha Vigencia</th>
+        <th>No Acceso</th>
+        <th>Área</th>
+        <th>Fecha Modificación</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="usuario : ${usuarios}">
+        <td th:text="${usuario.login}"></td>
+        <td th:text="${usuario.password}"></td>
+        <td th:text="${usuario.nombre}"></td>
+        <td th:text="${usuario.apellidoPaterno}"></td>
+        <td th:text="${usuario.apellidoMaterno}"></td>
+        <td th:text="${usuario.cliente}"></td>
+        <td th:text="${usuario.email}"></td>
+        <td th:text="${usuario.fechaAlta}"></td>
+        <td th:text="${usuario.fechaBaja}"></td>
+        <td th:text="${usuario.status}"></td>
+        <td th:text="${usuario.intentos}"></td>
+        <td th:text="${usuario.fechaRevocado}"></td>
+        <td th:text="${usuario.fechaVigencia}"></td>
+        <td th:text="${usuario.noAcceso}"></td>
+        <td th:text="${usuario.area}"></td>
+        <td th:text="${usuario.fechaModificacion}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

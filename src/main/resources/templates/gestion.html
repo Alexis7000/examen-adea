@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" type="text/css" href="/styles.css">
+    <style>
+        /* styles.css */
+		/* Estilos generales */
+		body {
+		    font-family: Arial, sans-serif;
+		    background-color: #f0f5f4; /* Fondo suave */
+		    color: #333;
+		    margin: 0;
+		    padding: 20px;
+		}
+
+		h2 {
+		    color: #006b3c; /* Verde oscuro */
+		}
+
+		button {
+		    background-color: #28a745; /* Botón verde */
+		    color: white;
+		    border: none;
+		    padding: 10px 20px;
+		    text-align: center;
+		    text-decoration: none;
+		    display: inline-block;
+		    font-size: 16px;
+		    margin: 10px 0;
+		    cursor: pointer;
+		    border-radius: 5px;
+		    transition: background-color 0.3s ease;
+		}
+
+		button:hover {
+		    background-color: #218838; /* Verde más oscuro */
+		}
+
+		.logout-button {
+		    background-color: #dc3545; /* Botón rojo */
+		    color: white;
+		    padding: 10px 20px;
+		    border: none;
+		    border-radius: 5px;
+		    cursor: pointer;
+		}
+
+		.logout-button:hover {
+		    background-color: #c82333;
+		}
+
+		input[type="text"], input[type="date"], input[type="number"] {
+		    padding: 10px;
+		    width: 100%;
+		    border: 1px solid #ced4da;
+		    border-radius: 5px;
+		    margin: 10px 0;
+		}
+
+		table {
+		    width: 100%;
+		    border-collapse: collapse;
+		    margin: 20px 0;
+		}
+
+		th, td {
+		    padding: 10px;
+		    text-align: left;
+		    border-bottom: 1px solid #ddd;
+		}
+
+		th {
+		    background-color: #28a745;
+		    color: white;
+		}
+
+		td {
+		    background-color: #f9f9f9;
+		}
+
+		.logout-form {
+		    text-align: right;
+		}
+
+		#listaUsuarios {
+		    margin-top: 20px;
+		}
+
+		/* Secciones ocultas */
+		#crearUsuario, #buscarUsuario, #editarUsuario, #eliminarUsuario {
+		    background-color: #e9f5f2;
+		    padding: 15px;
+		    border-radius: 10px;
+		    margin: 15px 0;
+		    display: none;
+		}
+
+		/* Mensaje de error */
+		#error {
+		    color: red;
+		}
+
+
+
+    </style>
+    <script>
+        function toggleSection(sectionId) {
+            var section = document.getElementById(sectionId);
+            if (section.style.display === "none" || section.style.display === "") {
+                section.style.display = "block";
+            } else {
+                section.style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body>
+<br>
+<form th:action="@{/logout}" method="post" class="logout-form">
+    <button type="submit" class="logout-button">Cerrar Sesión</button>
+</form>
+
+<button type="button" onclick="toggleSection('crearUsuario')">Crear Usuario</button>
+<button type="button" onclick="toggleSection('buscarUsuario')">Editar Usuario</button>
+<button type="button" onclick="toggleSection('eliminarUsuario')">Eliminar Usuario</button>
+
+<!-- Sección Crear Usuario -->
+<div id="crearUsuario" style="display:none;">
+    <h2>Crear Usuario</h2>
+    <form th:action="@{/api/usuarios/guardar}" th:object="${usuario}" method="post">
+        <label for="loginCrear">Login:</label>
+        <input type="text" id="loginCrear" th:field="*{login}" required><br>
+        <label for="passwordCrear">Password:</label>
+        <input type="text" id="passwordCrear" th:field="*{password}" required><br>
+        <label for="nombreCrear">Nombre:</label>
+        <input type="text" id="nombreCrear" th:field="*{nombre}" required><br>
+        <label for="apellidoPaternoCrear">Apellido Paterno:</label>
+        <input type="text" id="apellidoPaternoCrear" th:field="*{apellidoPaterno}"><br>
+        <label for="apellidoMaternoCrear">Apellido Materno:</label>
+        <input type="text" id="apellidoMaternoCrear" th:field="*{apellidoMaterno}"><br>
+        <label for="clienteCrear">Cliente:</label>
+        <input type="text" id="clienteCrear" th:field="*{cliente}" required><br>
+        <label for="emailCrear">Email:</label>
+        <input type="text" id="emailCrear" th:field="*{email}"><br>
+        <label for="fechaVigenciaCrear">Fecha Vigencia:</label>
+        <input type="date" id="fechaVigenciaCrear" th:field="*{fechaVigencia}" required><br>
+        <label for="areaCrear">Área:</label>
+        <input type="text" id="areaCrear" th:field="*{area}"><br>
+        <button type="submit">Crear Usuario</button>
+    </form>
+</div>
+
+<!-- Mostrar mensaje de error si el login ya existe -->
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+<!-- Sección Buscar Usuario para Editar -->
+<div id="buscarUsuario" style="display:none;">
+    <h2>Buscar Usuario para Editar</h2>
+    <form id="verificarForm">
+        <label for="loginBuscar">Login:</label>
+        <input type="text" id="loginBuscar" name="loginBuscar" required>
+        <button type="button" onclick="verificarUsuario()">Verificar Usuario</button>
+    </form>
+    <div id="mensajeVerificacion" style="color: red;"></div>
+</div>
+
+<!-- Sección Editar Usuario -->
+<div id="editarUsuario" style="display:none;">
+    <h2>Editar Usuario</h2>
+    <form th:action="@{/api/usuarios/actualizar}" th:object="${usuario}" method="post">
+        <label for="loginEditar">Login:</label>
+        <input type="text" id="loginEditar" th:field="*{login}" readonly><br>
+        <label for="passwordEditar">Password:</label>
+        <input type="text" id="passwordEditar" th:field="*{password}" required><br>
+        <label for="nombreEditar">Nombre:</label>
+        <input type="text" id="nombreEditar" th:field="*{nombre}" required><br>
+        <label for="clienteEditar">Cliente:</label>
+        <input type="text" id="clienteEditar" th:field="*{cliente}" required><br>
+        <label for="emailEditar">Email:</label>
+        <input type="text" id="emailEditar" th:field="*{email}"><br>
+        <label for="fechaAltaEditar">Fecha Alta:</label>
+        <input type="date" id="fechaAltaEditar" th:field="*{fechaAlta}" readonly><br>
+        <label for="fechaBajaEditar">Fecha Baja:</label>
+        <input type="date" id="fechaBajaEditar" th:field="*{fechaBaja}"><br>
+        <label for="statusEditar">Status:</label>
+        <input type="text" id="statusEditar" th:field="*{status}" required><br>
+        <label for="intentosEditar">Intentos:</label>
+        <input type="number" id="intentosEditar" th:field="*{intentos}" readonly><br>
+        <label for="fechaRevocadoEditar">Fecha Revocado:</label>
+        <input type="date" id="fechaRevocadoEditar" th:field="*{fechaRevocado}"><br>
+        <label for="fechaVigenciaEditar">Fecha Vigencia:</label>
+        <input type="date" id="fechaVigenciaEditar" th:field="*{fechaVigencia}"><br>
+        <label for="noAccesoEditar">No Acceso:</label>
+        <input type="text" id="noAccesoEditar" th:field="*{noAcceso}" readonly><br>
+        <label for="apellidoPaternoEditar">Apellido Paterno:</label>
+        <input type="text" id="apellidoPaternoEditar" th:field="*{apellidoPaterno}"><br>
+        <label for="apellidoMaternoEditar">Apellido Materno:</label>
+        <input type="text" id="apellidoMaternoEditar" th:field="*{apellidoMaterno}"><br>
+        <label for="areaEditar">Área:</label>
+        <input type="text" id="areaEditar" th:field="*{area}"><br>
+        <button type="submit">Actualizar datos de usuario</button>
+    </form>
+</div>
+
+<script>
+    function verificarUsuario() {
+        var login = document.getElementById("loginBuscar").value;
+        fetch(`/api/usuarios/verificarUsuario?login=${login}`)
+            .then(response => response.json())
+            .then(data => {
+                var mensajeVerificacion = document.getElementById("mensajeVerificacion");
+                var editarUsuarioSection = document.getElementById("editarUsuario");
+
+                if (data.existe) {
+                    mensajeVerificacion.textContent = "";
+                    editarUsuarioSection.style.display = "block";
+                    // Asignar valores al formulario de edición
+                    document.getElementById("loginEditar").value = data.login;
+                    document.getElementById("nombreEditar").value = data.nombre;
+                    document.getElementById("clienteEditar").value = data.cliente;
+                    document.getElementById("emailEditar").value = data.email;
+                    document.getElementById("fechaAltaEditar").value = data.fechaAlta;
+                    document.getElementById("fechaBajaEditar").value = data.fechaBaja;
+                    document.getElementById("statusEditar").value = data.status;
+                    document.getElementById("intentosEditar").value = data.intentos;
+                    document.getElementById("fechaRevocadoEditar").value = data.fechaRevocado;
+                    document.getElementById("fechaVigenciaEditar").value = data.fechaVigencia;
+                    document.getElementById("noAccesoEditar").value = data.noAcceso;
+                    document.getElementById("apellidoPaternoEditar").value = data.apellidoPaterno;
+                    document.getElementById("apellidoMaternoEditar").value = data.apellidoMaterno;
+                    document.getElementById("areaEditar").value = data.area;
+                } else {
+                    mensajeVerificacion.textContent = "Usuario no encontrado";
+                    editarUsuarioSection.style.display = "none";
+                }
+            });
+    }
+</script>
+
+<!-- Sección Eliminar Usuario -->
+<div id="eliminarUsuario" style="display:none;">
+    <h2>Eliminar Usuario</h2>
+    <form th:action="@{/api/usuarios/eliminar}" method="post">
+        <label for="login">Login:</label>
+        <input type="text" id="login" name="login" required><br>
+        <button type="submit">Eliminar Usuario</button>
+    </form>
+</div>
+
+<!-- Lista de usuarios -->
+<div id="listaUsuarios">
+    <h2>Lista de Usuarios</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Login</th>
+            <th>Contraseña</th>
+            <th>Nombre</th>
+            <th>Apellido Paterno</th>
+            <th>Apellido Materno</th>
+            <th>Cliente</th>
+            <th>Email</th>
+            <th>Fecha Alta</th>
+            <th>Fecha Baja</th>
+            <th>Status</th>
+            <th>Intentos</th>
+            <th>Fecha Revocado</th>
+            <th>Fecha Vigencia</th>
+            <th>No Acceso</th>
+            <th>Área</th>
+            <th>Fecha Modificación</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="usuario : ${usuarios}">
+            <td th:text="${usuario.login}"></td>
+            <td th:text="${usuario.password}"></td>
+            <td th:text="${usuario.nombre}"></td>
+            <td th:text="${usuario.apellidoPaterno}"></td>
+            <td th:text="${usuario.apellidoMaterno}"></td>
+            <td th:text="${usuario.cliente}"></td>
+            <td th:text="${usuario.email}"></td>
+            <td th:text="${usuario.fechaAlta}"></td>
+            <td th:text="${usuario.fechaBaja}"></td>
+            <td th:text="${usuario.status}"></td>
+            <td th:text="${usuario.intentos}"></td>
+            <td th:text="${usuario.fechaRevocado}"></td>
+            <td th:text="${usuario.fechaVigencia}"></td>
+            <td th:text="${usuario.noAcceso}"></td>
+            <td th:text="${usuario.area}"></td>
+            <td th:text="${usuario.fechaModificacion}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

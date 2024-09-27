@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Inicio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eaf5ea; /* Verde claro de fondo */
+            color: #2f4f2f; /* Verde oscuro para el texto */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #2e8b57; /* Verde tipo "Sea Green" */
+            text-align: center;
+        }
+
+        .home-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .button-container {
+            background-color: #32cd32; /* Verde lima */
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            text-decoration: none;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 128, 0, 0.2);
+            font-size: 16px;
+        }
+
+        .button-container:hover {
+            background-color: #228b22; /* Verde más oscuro al pasar el ratón */
+        }
+
+        .logout-form {
+            margin-top: 20px;
+        }
+
+        .logout-form button {
+            background-color: #006400; /* Verde oscuro */
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .logout-form button:hover {
+            background-color: #228b22; /* Verde tipo "Forest Green" */
+        }
+    </style>
+</head>
+<body>
+<div class="home-container">
+    <h2>¡Bienvenido a la página! :)</h2>
+    <a th:href="@{/api/usuarios/gestion}" class="button-container">Gestión de Usuarios</a>
+    <br>
+    <a th:href="@{/api/usuarios/tablero}" class="button-container">Tablero de Usuarios</a>
+    <form th:action="@{/logout}" method="post" class="logout-form">
+        <button type="submit">Cerrar Sesión</button>
+    </form>
+</div>
+</body>
+</html>
+
